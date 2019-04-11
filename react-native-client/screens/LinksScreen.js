@@ -126,3 +126,4 @@ export default class CameraExample extends React.Component {
 //     backgroundColor: '#fff'
 //   }
 // });
+console.log('what it do?', 'strange');
