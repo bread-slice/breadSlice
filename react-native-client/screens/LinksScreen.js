@@ -1,27 +1,6 @@
-// import React from 'react';
-// import { ScrollView, StyleSheet, Text } from 'react-native';
-// import { ExpoLinksView } from '@expo/samples';
-
-// export default class LinksScreen extends React.Component {
-//   static navigationOptions = {
-//     title: 'Links',
-//   };
-
-//   render() {
-//     return (
-//       <ScrollView style={styles.container}>
-//         <Text>Cool beans </Text>
-//         {/* Go ahead and delete ExpoLinksView and replace it with your
-//            * content, we just wanted to provide you with some helpful links */}
-//         <ExpoLinksView />
-//       </ScrollView>
-//     );
-//   }
-// }
-
 import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
-import { Camera, Permissions } from 'expo';
+import { Camera, Permissions, ImagePicker } from 'expo';
 
 export default class CameraExample extends React.Component {
   state = {
@@ -30,7 +9,10 @@ export default class CameraExample extends React.Component {
   };
 
   async componentDidMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    const { status } = await Permissions.askAsync(
+      Permissions.CAMERA,
+      Permissions.CAMERA_ROLL
+    );
     this.setState({ hasCameraPermission: status === 'granted' });
   }
 
@@ -50,7 +32,9 @@ export default class CameraExample extends React.Component {
               this.camera = cam;
             }}
           >
-            <Text onPress={this.takePicture.bind(this)}>[CAPTURE_IMAGE]</Text>
+            {/* <Text onPress={this.takePicture.bind(this)}>[CAPTURE_IMAGE]</Text> */}
+            <Text onPress={this.takeAndUploadPhotoAsync}>[CAPTURE_IMAGE]</Text>
+
             <View
               style={{
                 flex: 1,
@@ -87,23 +71,58 @@ export default class CameraExample extends React.Component {
     }
   }
   takePicture() {
-    // const options = {};
     console.log('what it do?');
-    // this.camera
-    //   .capture({ metadata: options })
-    //   .then(data => {
-    //     console.log(data);
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
+    const options = {};
+
+    this.camera
+      .takePictureAsync({ metadata: options })
+      .then(data => {
+        console.log(data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
+  takeAndUploadPhotoAsync = async () => {
+    console.log('piss & shit');
+    // Display the camera to the user and wait for them to take a photo or to cancel
+    // the action
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3]
+    });
+
+    if (result.cancelled) {
+      return;
+    }
+
+    // ImagePicker saves the taken photo to disk and returns a local URI to it
+    let localUri = result.uri;
+    let filename = localUri.split('/').pop();
+
+    // Infer the type of the image
+    let match = /\.(\w+)$/.exec(filename);
+    let type = match ? `image/${match[1]}` : `image`;
+
+    // Upload the image using the fetch and FormData APIs
+    let formData = new FormData();
+    // Assume "photo" is the name of the form field the server expects
+    formData.append('photo', { uri: localUri, name: filename, type });
+
+    return await fetch('http://192.168.125.141:3000/post', {
+      method: 'POST',
+      body: formData,
+      header: {
+        'content-type': 'multipart/form-data'
+      }
+    });
+  };
 }
 
 // const styles = StyleSheet.create({
 //   container: {
 //     flex: 1,
 //     paddingTop: 15,
-//     backgroundColor: '#fff',
-//   },
+//     backgroundColor: '#fff'
+//   }
 // });
