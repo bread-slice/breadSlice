@@ -5,7 +5,8 @@ import { Camera, Permissions, ImagePicker } from 'expo';
 export default class CameraExample extends React.Component {
   state = {
     hasCameraPermission: null,
-    type: Camera.Constants.Type.back
+    type: Camera.Constants.Type.back,
+    text: 'yolo'
   };
 
   async componentDidMount() {
@@ -63,6 +64,11 @@ export default class CameraExample extends React.Component {
                   {' '}
                   Flip{' '}
                 </Text>
+                <Text
+                  style={{ fontSize: 18, marginBottom: 10, color: 'white' }}
+                >
+                  {this.state.text}
+                </Text>
               </TouchableOpacity>
             </View>
           </Camera>
@@ -115,7 +121,15 @@ export default class CameraExample extends React.Component {
       header: {
         'content-type': 'multipart/form-data'
       }
-    });
+    })
+      .then(response => {
+        console.log('response', response);
+        return response.json();
+      })
+      .then(data => {
+        console.log('data', data);
+        this.setState({ text: data.data });
+      });
   };
 }
 
