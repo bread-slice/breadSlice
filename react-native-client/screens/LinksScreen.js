@@ -6,7 +6,7 @@ export default class CameraExample extends React.Component {
   state = {
     hasCameraPermission: null,
     type: Camera.Constants.Type.back,
-    text: 'yolo'
+    text: ''
   };
 
   async componentDidMount() {
@@ -65,7 +65,13 @@ export default class CameraExample extends React.Component {
                   Flip{' '}
                 </Text>
                 <Text
-                  style={{ fontSize: 18, marginBottom: 10, color: 'white' }}
+                  style={{
+                    width: 600,
+                    fontSize: 18,
+                    marginBottom: 10,
+                    marginLeft: 600,
+                    color: 'white'
+                  }}
                 >
                   {this.state.text}
                 </Text>
